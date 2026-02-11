@@ -1,5 +1,5 @@
-import { HomeScreen } from "@/screens/HomeScreen";
+import { LeaderboardScreen } from "@/screens/LeaderboardScreen";
 
 export default function Index() {
-  return <HomeScreen />;
+  return <LeaderboardScreen />;
 }

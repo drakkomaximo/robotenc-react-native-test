@@ -17,6 +17,8 @@ async function request<TResponse>({
 }: RequestOptions): Promise<TResponse> {
   const url = `${API_BASE_URL}${path}`;
 
+  console.log("[httpClient] request", method, url, body ?? null);
+
   const response = await fetch(url, {
     method,
     headers: {
@@ -25,6 +27,8 @@ async function request<TResponse>({
     },
     body: body ? JSON.stringify(body) : undefined,
   });
+
+  console.log("[httpClient] response status", response.status);
 
   if (!response.ok) {
     const errorText = await response.text().catch(() => "");
