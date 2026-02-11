@@ -3,18 +3,16 @@ import { Alert, Text, TextInput, View, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { Screen } from "@/components/ui/Screen";
 import { Title, Body } from "@/components/ui/Typography";
-import { submitScore } from "@/api/leaderboard";
-import { useLeaderboard } from "@/state/LeaderboardContext";
 import { PixelButton } from "@/components/ui/PixelButton";
 import { SUBMIT_SCORE_GENERIC_ERROR_MESSAGE } from "@/config/messages";
+import { useSubmitScoreMutation } from "@/hooks/mutations/useSubmitScoreMutation";
 
 export function SubmitScoreScreen() {
   const [scoreInput, setScoreInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { applyOptimisticScore, rollbackLeaderboard, applyServerScoreUpdate } =
-    useLeaderboard();
+  const submitMutation = useSubmitScoreMutation();
   const router = useRouter();
 
   function parseScore(value: string): number | null {
@@ -35,23 +33,17 @@ export function SubmitScoreScreen() {
       return;
     }
 
-    setError(null);
-    setIsSubmitting(true);
-
-    // Optimistic update: apply locally before calling API.
-    const previousEntries = applyOptimisticScore(score);
-
     try {
-      const response = await submitScore(score);
-      applyServerScoreUpdate(response);
+      setError(null);
+      setIsSubmitting(true);
+
+      await submitMutation.mutateAsync(score);
 
       Alert.alert("Score updated", "Your new score has been submitted!");
 
       // Navigate back to the leaderboard after success.
       router.replace("/");
     } catch (err) {
-      // Rollback optimistic update if API fails.
-      rollbackLeaderboard(previousEntries);
       setError(SUBMIT_SCORE_GENERIC_ERROR_MESSAGE);
       Alert.alert("Submit failed", SUBMIT_SCORE_GENERIC_ERROR_MESSAGE);
     } finally {

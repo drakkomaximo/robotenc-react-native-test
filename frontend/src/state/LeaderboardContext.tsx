@@ -6,19 +6,24 @@ import {
   type SubmitScoreResponse,
 } from "@/api/leaderboard";
 import { LEADERBOARD_LOAD_ERROR_MESSAGE } from "@/config/messages";
+import { useLeaderboardQuery } from "@/hooks/queries/useLeaderboardQuery";
+
 
 interface LeaderboardState {
   entries: LeaderboardEntry[];
   isLoading: boolean;
   isRefreshing: boolean;
   error: string | null;
+  // TanStack Query–like derived fields (for future migration)
+  data: LeaderboardEntry[];
+  isFetching: boolean;
+  isError: boolean;
 }
 
 interface LeaderboardContextValue extends LeaderboardState {
   loadLeaderboard: (options?: { isRefresh?: boolean }) => Promise<void>;
   applyOptimisticScore: (score: number) => LeaderboardEntry[];
   rollbackLeaderboard: (previous: LeaderboardEntry[]) => void;
-  applyServerScoreUpdate: (response: SubmitScoreResponse) => void;
 }
 
 const LeaderboardContext = createContext<LeaderboardContextValue | undefined>(
@@ -30,6 +35,9 @@ export function LeaderboardProvider({ children }: PropsWithChildren) {
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Note: we don't rely directly on this query's state yet, but it shows
+  // how the provider could delegate data fetching to TanStack Query.
+  useLeaderboardQuery();
 
   async function loadLeaderboard(options?: { isRefresh?: boolean }) {
     const isRefresh = options?.isRefresh ?? false;
@@ -89,12 +97,6 @@ export function LeaderboardProvider({ children }: PropsWithChildren) {
     setEntries(previous);
   }
 
-  function applyServerScoreUpdate(response: SubmitScoreResponse) {
-    // For now, we don't need to do much because the optimistic update
-    // already adjusted the list. You could sync timestamp or rank here if needed.
-    console.log("[LeaderboardContext] server score update", response);
-  }
-
   useEffect(() => {
     // Initial load on provider mount.
     void loadLeaderboard();
@@ -105,10 +107,12 @@ export function LeaderboardProvider({ children }: PropsWithChildren) {
     isLoading,
     isRefreshing,
     error,
+    data: entries,
+    isFetching: isLoading || isRefreshing,
+    isError: error != null,
     loadLeaderboard,
     applyOptimisticScore,
     rollbackLeaderboard,
-    applyServerScoreUpdate,
   };
 
   return (
