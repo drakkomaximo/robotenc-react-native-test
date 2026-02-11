@@ -5,6 +5,7 @@ import {
   type LeaderboardEntry,
   type SubmitScoreResponse,
 } from "@/api/leaderboard";
+import { LEADERBOARD_LOAD_ERROR_MESSAGE } from "@/config/messages";
 
 interface LeaderboardState {
   entries: LeaderboardEntry[];
@@ -45,8 +46,7 @@ export function LeaderboardProvider({ children }: PropsWithChildren) {
       const data = await getLeaderboard();
       setEntries(data);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Unknown error";
-      setError(message);
+      setError(LEADERBOARD_LOAD_ERROR_MESSAGE);
     } finally {
       if (isRefresh) {
         setIsRefreshing(false);

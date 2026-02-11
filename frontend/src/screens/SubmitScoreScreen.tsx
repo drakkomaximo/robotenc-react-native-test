@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { Alert, Text, TextInput, View, Pressable, ActivityIndicator } from "react-native";
+import { Alert, Text, TextInput, View, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { Screen } from "@/components/ui/Screen";
 import { Title, Body } from "@/components/ui/Typography";
 import { submitScore } from "@/api/leaderboard";
 import { useLeaderboard } from "@/state/LeaderboardContext";
+import { PixelButton } from "@/components/ui/PixelButton";
+import { SUBMIT_SCORE_GENERIC_ERROR_MESSAGE } from "@/config/messages";
 
 export function SubmitScoreScreen() {
   const [scoreInput, setScoreInput] = useState("");
@@ -43,14 +45,15 @@ export function SubmitScoreScreen() {
       const response = await submitScore(score);
       applyServerScoreUpdate(response);
 
+      Alert.alert("Score updated", "Your new score has been submitted!");
+
       // Navigate back to the leaderboard after success.
       router.replace("/");
     } catch (err) {
       // Rollback optimistic update if API fails.
       rollbackLeaderboard(previousEntries);
-      const message = err instanceof Error ? err.message : "Unknown error";
-      setError(message);
-      Alert.alert("Submit failed", message);
+      setError(SUBMIT_SCORE_GENERIC_ERROR_MESSAGE);
+      Alert.alert("Submit failed", SUBMIT_SCORE_GENERIC_ERROR_MESSAGE);
     } finally {
       setIsSubmitting(false);
     }
@@ -59,13 +62,19 @@ export function SubmitScoreScreen() {
   return (
     <Screen>
       <View className="flex-1 p-4 gap-4">
-        <Title>Submit Score</Title>
+        <View className="flex-row items-center justify-between mb-2">
+          <PixelButton variant="secondary" onPress={() => router.back()}>
+            Back
+          </PixelButton>
+          <Title>Submit</Title>
+          <View className="w-20" />
+        </View>
         <Body>Enter a score between 0 and 999 for the current user.</Body>
 
         <View className="gap-2 mt-4">
           <Text className="font-semibold">Score</Text>
           <TextInput
-            className="border border-gray-300 rounded px-3 py-2"
+            className="border border-lime-500 bg-slate-950 text-lime-100 px-3 py-2 shadow-[4px_4px_0px_#000]"
             keyboardType="numeric"
             value={scoreInput}
             onChangeText={setScoreInput}
@@ -74,21 +83,18 @@ export function SubmitScoreScreen() {
         </View>
 
         {error && (
-          <Text className="text-red-500 mt-2">{error}</Text>
+          <Text className="text-red-400 mt-2">
+            Your punch was not registered. Please check your score and try
+            again.
+          </Text>
         )}
 
         <View className="mt-4">
-          <Pressable
-            onPress={handleSubmit}
-            disabled={isSubmitting}
-            className="bg-blue-600 rounded px-4 py-3 items-center justify-center"
-          >
-            {isSubmitting ? (
-              <ActivityIndicator color="#ffffff" />
-            ) : (
-              <Text className="text-white font-bold">Submit</Text>
-            )}
-          </Pressable>
+          {isSubmitting ? (
+            <ActivityIndicator />
+          ) : (
+            <PixelButton onPress={handleSubmit}>Submit</PixelButton>
+          )}
         </View>
       </View>
     </Screen>

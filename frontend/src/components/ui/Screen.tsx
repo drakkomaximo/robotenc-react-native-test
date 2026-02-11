@@ -3,7 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export function Screen({ children }: PropsWithChildren) {
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-sky-900">
       {children}
     </SafeAreaView>
   );

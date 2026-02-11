@@ -4,7 +4,7 @@ import { Text, TextProps } from "react-native";
 export function Title({ children, ...rest }: PropsWithChildren<TextProps>) {
   return (
     <Text
-      className="text-xl font-bold text-red-500 text-center"
+      className="text-xl font-extrabold text-amber-200 tracking-[0.2em] uppercase text-center"
       {...rest}
     >
       {children}
@@ -14,7 +14,7 @@ export function Title({ children, ...rest }: PropsWithChildren<TextProps>) {
 
 export function Body({ children, ...rest }: PropsWithChildren<TextProps>) {
   return (
-    <Text className="text-base text-black" {...rest}>
+    <Text className="text-sm text-slate-100" {...rest}>
       {children}
     </Text>
   );
