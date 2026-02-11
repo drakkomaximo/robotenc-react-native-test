@@ -33,13 +33,15 @@ export function SubmitScoreView({
         <Body>Enter a score between 0 and 999 for the current user.</Body>
 
         <View className="gap-2 mt-4">
-          <Text className="font-semibold">Score</Text>
+          <Body>Score</Body>
           <TextInput
-            className="border border-lime-500 bg-slate-950 text-lime-100 px-3 py-2 shadow-[4px_4px_0px_#000]"
-            keyboardType="numeric"
             value={scoreInput}
             onChangeText={onChangeScore}
-            maxLength={3}
+            keyboardType="number-pad"
+            className="mt-1 px-3 py-2 bg-slate-900 border-2 border-slate-500 text-slate-50"
+            placeholder="Enter your score"
+            placeholderTextColor="#64748b"
+            editable={!isSubmitting}
           />
         </View>
 

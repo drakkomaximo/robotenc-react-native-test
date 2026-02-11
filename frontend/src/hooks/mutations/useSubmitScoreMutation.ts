@@ -42,8 +42,6 @@ export function useSubmitScoreMutation() {
       }
     },
     onSettled() {
-      // Clear the cached leaderboard so the next load behaves like a
-      // first load and shows the splash screen.
       queryClient.removeQueries({ queryKey: LEADERBOARD_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: LEADERBOARD_QUERY_KEY });
     },

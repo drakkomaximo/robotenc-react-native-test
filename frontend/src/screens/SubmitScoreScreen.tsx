@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Alert } from "react-native";
 import { useRouter } from "expo-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { SUBMIT_SCORE_GENERIC_ERROR_MESSAGE } from "@/config/messages";
 import { useSubmitScoreMutation } from "@/hooks/mutations/useSubmitScoreMutation";
 import { SubmitScoreView } from "@/components/views/SubmitScoreView";
+import { LEADERBOARD_QUERY_KEY } from "@/hooks/queries/useLeaderboardQuery";
+import type { LeaderboardEntry } from "@/api/leaderboard";
 
 export function SubmitScoreScreen() {
   const [scoreInput, setScoreInput] = useState("");
@@ -12,6 +14,7 @@ export function SubmitScoreScreen() {
 
   const submitMutation = useSubmitScoreMutation();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   function parseScore(value: string): number | null {
     const trimmed = value.trim();
@@ -35,15 +38,42 @@ export function SubmitScoreScreen() {
       setError(null);
       setIsSubmitting(true);
 
-      await submitMutation.mutateAsync(score);
+      const previousEntries =
+        queryClient.getQueryData<LeaderboardEntry[]>(LEADERBOARD_QUERY_KEY) ?? [];
+      const previousCurrentUser = previousEntries.find(
+        (e) => e.user_id === "current_user"
+      );
 
-      Alert.alert("Score updated", "Your new score has been submitted!");
+      const submitResult = await submitMutation.mutateAsync(score);
 
-      // Navigate back to the leaderboard after success.
-      router.replace("/");
+      let prevRankParam: number | null = null;
+      let newRankParam: number | null = null;
+      let usernameParam: string | null = null;
+
+      if (previousCurrentUser) {
+        prevRankParam = previousCurrentUser.rank;
+        usernameParam = previousCurrentUser.username;
+      }
+
+      if (submitResult && submitResult.new_rank != null) {
+        newRankParam = submitResult.new_rank;
+      }
+
+      if (prevRankParam != null && newRankParam != null && usernameParam) {
+        router.replace({
+          pathname: "/",
+          params: {
+            scoreUpdated: "1",
+            username: usernameParam,
+            prevRank: String(prevRankParam),
+            newRank: String(newRankParam),
+          },
+        });
+      } else {
+        router.replace("/");
+      }
     } catch (err) {
       setError(SUBMIT_SCORE_GENERIC_ERROR_MESSAGE);
-      Alert.alert("Submit failed", SUBMIT_SCORE_GENERIC_ERROR_MESSAGE);
     } finally {
       setIsSubmitting(false);
     }

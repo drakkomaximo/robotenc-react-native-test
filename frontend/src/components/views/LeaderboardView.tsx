@@ -1,8 +1,10 @@
-import { FlatList, Text, View, Pressable } from "react-native";
+import { ActivityIndicator, FlatList, Text, View, Pressable } from "react-native";
 import { Screen } from "@/components/ui/Screen";
 import { Title, Body } from "@/components/ui/Typography";
 import { PixelButton } from "@/components/ui/PixelButton";
 import { PixelCard } from "@/components/ui/PixelCard";
+import { FadeInView } from "@/components/ui/FadeInView";
+import { NotificationOverlay, NotificationVariant } from "@/components/ui/NotificationOverlay";
 import { type LeaderboardEntry } from "@/api/leaderboard";
 import { formatTimestamp } from "@/utils/format";
 import {
@@ -19,6 +21,13 @@ interface LeaderboardViewProps {
   onSubmitScorePress: () => void;
   onPressEntry: (userId: string) => void;
   onRefresh: () => void;
+  notification?: {
+    title: string;
+    message: string;
+    variant?: NotificationVariant;
+    withConfetti?: boolean;
+  } | null;
+  onNotificationClose?: () => void;
 }
 
 export function LeaderboardView({
@@ -30,6 +39,8 @@ export function LeaderboardView({
   onSubmitScorePress,
   onPressEntry,
   onRefresh,
+  notification,
+  onNotificationClose,
 }: LeaderboardViewProps) {
   const hasEntries = entries.length > 0;
 
@@ -37,31 +48,32 @@ export function LeaderboardView({
     const isCurrentUser = item.user_id === "current_user";
 
     return (
-      <Pressable onPress={() => onPressEntry(item.user_id)}>
-        <PixelCard
-          className={`flex-row items-center justify-between mb-2 ${
-            isCurrentUser ? "border-lime-300" : ""
-          }`}
-        >
-          <Text className="w-8 font-bold text-amber-300">#{item.rank}</Text>
-          <View className="flex-1 mx-2">
-            <Text className="font-semibold text-slate-50">
-              {item.username}
-            </Text>
-            <Text className="text-[10px] text-slate-400">
-              {formatTimestamp(item.timestamp)}
-            </Text>
-          </View>
-          <View className="items-end gap-1">
-            <Text className="font-bold text-emerald-300">{item.score}</Text>
-            {isCurrentUser && (
-              <View className="px-2 py-1 bg-amber-300 shadow-[4px_4px_0px_#000]">
-                <Text className="text-[10px] font-bold text-black">YOU</Text>
-              </View>
-            )}
-          </View>
-        </PixelCard>
-      </Pressable>
+      <FadeInView>
+        <Pressable onPress={() => onPressEntry(item.user_id)}>
+          <PixelCard
+            className={`flex-row items-center justify-between mb-2 ${isCurrentUser ? "border-lime-300" : ""
+              }`}
+          >
+            <Text className="w-8 font-bold text-amber-300">#{item.rank}</Text>
+            <View className="flex-1 mx-2">
+              <Text className="font-semibold text-slate-50">
+                {item.username}
+              </Text>
+              <Text className="text-[10px] text-slate-400">
+                {formatTimestamp(item.timestamp)}
+              </Text>
+            </View>
+            <View className="items-end gap-1">
+              <Text className="font-bold text-emerald-300">{item.score}</Text>
+              {isCurrentUser && (
+                <View className="px-2 py-1 bg-amber-300 shadow-[4px_4px_0px_#000]">
+                  <Text className="text-[10px] font-bold text-black">YOU</Text>
+                </View>
+              )}
+            </View>
+          </PixelCard>
+        </Pressable>
+      </FadeInView>
     );
   };
 
@@ -90,7 +102,14 @@ export function LeaderboardView({
             </View>
           )}
 
-          {!error && !hasEntries && !isLoading && !isRefreshing && (
+          {!error && isLoading && !hasEntries && (
+            <View className="items-center justify-center flex-1 gap-3">
+              <ActivityIndicator />
+              <Text className="text-slate-100">Loading leaderboard...</Text>
+            </View>
+          )}
+
+          {!error && !isLoading && !hasEntries && !isRefreshing && (
             <View className="items-center justify-center flex-1">
               <Text>No leaderboard entries.</Text>
             </View>
@@ -106,6 +125,15 @@ export function LeaderboardView({
               renderItem={renderEntry}
             />
           )}
+
+          <NotificationOverlay
+            visible={!!notification}
+            title={notification?.title ?? ""}
+            message={notification?.message ?? ""}
+            variant={notification?.variant}
+            withConfetti={notification?.withConfetti}
+            onAutoClose={onNotificationClose}
+          />
         </View>
       </View>
     </Screen>

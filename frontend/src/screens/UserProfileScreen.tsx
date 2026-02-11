@@ -1,11 +1,10 @@
-import { Text } from "react-native";
 import { useRouter } from "expo-router";
+import { useUserProfileQuery } from "@/hooks/queries/useUserProfileQuery";
 import { LoadingSplash } from "@/components/ui/LoadingSplash";
 import {
   USER_PROFILE_SPLASH_TITLE,
   USER_PROFILE_LOADING_MESSAGE,
 } from "@/config/messages";
-import { useUserProfileQuery } from "@/hooks/queries/useUserProfileQuery";
 import { UserProfileView } from "@/components/views/UserProfileView";
 
 interface UserProfileScreenProps {
@@ -21,18 +20,21 @@ export function UserProfileScreen({ userId }: UserProfileScreenProps) {
     router.back();
   }
 
-  return (
-    isLoading && !isError ? (
+  if (isLoading && !hasData && !isError) {
+    return (
       <LoadingSplash
         title={USER_PROFILE_SPLASH_TITLE}
         message={USER_PROFILE_LOADING_MESSAGE}
       />
-    ) : (
-      <UserProfileView
-        profile={hasData ? data! : null}
-        isError={isError}
-        onBackPress={handleBackPress}
-      />
-    )
+    );
+  }
+
+  return (
+    <UserProfileView
+      profile={hasData ? data! : null}
+      isError={isError}
+      isLoading={isLoading}
+      onBackPress={handleBackPress}
+    />
   );
 }

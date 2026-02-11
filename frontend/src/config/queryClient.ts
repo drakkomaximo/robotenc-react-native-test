@@ -1,7 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 
 export const QUERY_STALE_TIMES = {
-  leaderboard: 15_000,
+  leaderboard: 60_000,
   userProfile: 60_000,
 } as const;
 
