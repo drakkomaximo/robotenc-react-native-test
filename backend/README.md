@@ -2,6 +2,8 @@
 
 Mock API for the React Native take-home exercise. This service exposes leaderboard and user score endpoints, and includes interactive API documentation with Swagger UI.
 
+The backend intentionally simulates **network delay** and **random failures (~10%)** so the mobile app can demonstrate proper loading, error, and retry behavior. All score submissions are for a single logical user whose ID is `"current_user"`.
+
 ## Prerequisites
 
 - Node.js (version 14+ recommended)
@@ -50,6 +52,8 @@ Base path: `http://localhost:4444/api/v1`
 
 - `POST /api/v1/reset`
   - Resets the leaderboard data to a new randomized state.
+
+These endpoints are consumed by the Expo frontend in the `/frontend` directory. Make sure the server is running before starting the mobile app.
 
 ## Swagger API Documentation
 

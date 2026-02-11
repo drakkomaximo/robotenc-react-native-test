@@ -149,7 +149,11 @@ export function LeaderboardScreen() {
       onPressEntry={handlePressEntry}
       onRefresh={refetchLeaderboard}
       notification={notification}
-      onNotificationClose={() => setNotification(null)}
+      isResetting={resetMutation.isPending}
+      onNotificationClose={() => {
+        setNotification(null);
+        router.replace("/");
+      }}
     />
   );
 }

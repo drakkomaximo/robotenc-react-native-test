@@ -1,4 +1,4 @@
-import { ActivityIndicator, FlatList, Text, View, Pressable } from "react-native";
+import { ActivityIndicator, FlatList, Text, View, Pressable, Image } from "react-native";
 import { Screen } from "@/components/ui/Screen";
 import { Title, Body } from "@/components/ui/Typography";
 import { PixelButton } from "@/components/ui/PixelButton";
@@ -28,6 +28,7 @@ interface LeaderboardViewProps {
     withConfetti?: boolean;
   } | null;
   onNotificationClose?: () => void;
+  isResetting?: boolean;
 }
 
 export function LeaderboardView({
@@ -41,6 +42,7 @@ export function LeaderboardView({
   onRefresh,
   notification,
   onNotificationClose,
+  isResetting = false,
 }: LeaderboardViewProps) {
   const hasEntries = entries.length > 0;
 
@@ -55,8 +57,20 @@ export function LeaderboardView({
               }`}
           >
             <Text className="w-8 font-bold text-amber-300">#{item.rank}</Text>
-            <View className="flex-1 mx-2">
-              <Text className="font-semibold text-slate-50">
+            {item.avatar_url ? (
+              <Image
+                source={{ uri: item.avatar_url }}
+                className="w-8 h-8 mr-2 shadow-[3px_3px_0px_#000]"
+              />
+            ) : (
+              <View className="w-8 h-8 mr-2 bg-amber-300 border-2 border-amber-500 shadow-[3px_3px_0px_#000] items-center justify-center">
+                <Text className="text-xs font-extrabold text-black">
+                  {item.username.charAt(0).toUpperCase()}
+                </Text>
+              </View>
+            )}
+            <View className="flex-1 mx-1">
+              <Text className="font-semibold text-slate-50" numberOfLines={1}>
                 {item.username}
               </Text>
               <Text className="text-[10px] text-slate-400">
@@ -83,7 +97,11 @@ export function LeaderboardView({
         <View className="gap-1 mb-2">
           <View className="flex-row items-center justify-between">
             <PixelButton variant="secondary" onPress={onResetPress}>
-              Reset
+              {isResetting ? (
+                <ActivityIndicator />
+              ) : (
+                "Reset"
+              )}
             </PixelButton>
             <Title>Leaderboard</Title>
             <PixelButton onPress={onSubmitScorePress}>Score</PixelButton>
