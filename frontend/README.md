@@ -118,3 +118,14 @@ Common `package.json` scripts (run from `frontend/`):
 
 - Sensitive configuration like API base URLs must be provided via environment variables (never hard-coded).
 - Avoid magic values in the codebase; use config/constants under `src/config/` instead.
+
+## Example
+https://github.com/user-attachments/assets/86de1541-caac-413d-9253-c6db994a2a9a
+
+https://github.com/user-attachments/assets/24729743-65b4-4156-8651-9d6b666fc9c8
+
+
+
+
+
+
