@@ -96,7 +96,11 @@ React Native / Expo frontend for the Robotenc leaderboard exercise. This app sho
 2. Configure environment variables:
 
    - Copy `.env.template` to `.env`.
-   - Set `EXPO_PUBLIC_API_BASE_URL` to your backend URL (e.g. `http://localhost:4444/api/v1`).
+   - Set `EXPO_PUBLIC_API_BASE_URL` to your backend URL:
+     - For **web or emulators** running on the same machine as the backend you can use:
+       - `http://localhost:4444/api/v1`
+     - For **physical devices** (Expo Go on a phone/tablet), use the LAN IP of your development machine instead of `localhost`, for example:
+       - `http://192.168.0.10:4444/api/v1`
 
 3. Start the Expo app (from `frontend/`):
 
